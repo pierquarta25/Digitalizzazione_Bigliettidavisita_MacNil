@@ -1,16 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import Navbar from '@/components/Navbar'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { ArrowLeft, Save, User, Building2, Mail, Phone, Globe, MapPin, Tag, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Save, User, Building2, Mail, Phone, Globe, MapPin, Tag, MessageSquare, Zap } from 'lucide-react'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
-import { useRouter } from 'next/navigation'
+import { createContact } from '@/lib/actions/contacts'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function ManualEntryPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     first_name: '',
@@ -26,6 +25,23 @@ export default function ManualEntryPage() {
     interest: '',
   })
 
+  // Precompila il form se arrivano dati dalla scansione
+  useEffect(() => {
+    const newData: any = { ...formData }
+    let hasNewData = false
+
+    searchParams.forEach((value, key) => {
+      if (key in newData) {
+        newData[key as keyof typeof formData] = value
+        hasNewData = true
+      }
+    })
+
+    if (hasNewData) {
+      setFormData(newData)
+    }
+  }, [searchParams])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -36,20 +52,15 @@ export default function ManualEntryPage() {
     setLoading(true)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      const { error } = await supabase.from('contacts').insert([
-        {
-          ...formData,
-          user_id: user?.id,
-          scan_source: 'manual',
-        }
-      ])
+      const result = await createContact({
+        ...formData,
+        scan_source: searchParams.toString() ? 'ocr/qr' : 'manual',
+      })
 
-      if (error) throw error
-
-      alert('Contatto salvato con successo!')
-      router.push('/dashboard')
+      if (result.success) {
+        alert('Contatto salvato e sincronizzato!')
+        router.push('/dashboard')
+      }
     } catch (error: any) {
       console.error('Error saving contact:', error.message)
       alert('Errore durante il salvataggio: ' + error.message)
@@ -60,15 +71,20 @@ export default function ManualEntryPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
-      <Navbar />
-      
       <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
-        <Link href="/scan" className="mb-6 inline-flex items-center text-sm font-medium text-zinc-500 hover:text-blue-600">
+        <Link href="/scan" className="mb-6 inline-flex items-center text-sm font-medium text-zinc-500 hover:text-primary transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Torna alla Scansione
         </Link>
 
-        <h1 className="mb-8 text-3xl font-bold">Inserimento Manuale</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">Dati Contatto</h1>
+          {searchParams.toString() && (
+            <span className="flex items-center gap-1 text-xs font-bold uppercase bg-secondary/20 text-secondary px-3 py-1 rounded-full animate-pulse border border-secondary/30">
+              <Zap className="h-3 w-3 fill-current" /> Dati Suggeriti dall'AI
+            </span>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border rounded-2xl p-6 shadow-sm space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -79,7 +95,8 @@ export default function ManualEntryPage() {
               <input 
                 name="first_name"
                 required
-                className="w-full p-2 border rounded-md bg-transparent"
+                value={formData.first_name}
+                className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
                 placeholder="Es. Mario"
                 onChange={handleChange}
               />
@@ -89,7 +106,8 @@ export default function ManualEntryPage() {
               <input 
                 name="last_name"
                 required
-                className="w-full p-2 border rounded-md bg-transparent"
+                value={formData.last_name}
+                className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
                 placeholder="Es. Rossi"
                 onChange={handleChange}
               />
@@ -103,7 +121,8 @@ export default function ManualEntryPage() {
               </label>
               <input 
                 name="company"
-                className="w-full p-2 border rounded-md bg-transparent"
+                value={formData.company}
+                className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
                 placeholder="Es. MacNil"
                 onChange={handleChange}
               />
@@ -112,7 +131,8 @@ export default function ManualEntryPage() {
               <label className="text-sm font-medium text-zinc-400">Ruolo</label>
               <input 
                 name="role"
-                className="w-full p-2 border rounded-md bg-transparent"
+                value={formData.role}
+                className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
                 placeholder="Es. CEO"
                 onChange={handleChange}
               />
@@ -126,7 +146,8 @@ export default function ManualEntryPage() {
             <input 
               name="email"
               type="email"
-              className="w-full p-2 border rounded-md bg-transparent"
+              value={formData.email}
+              className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
               placeholder="mario.rossi@azienda.it"
               onChange={handleChange}
             />
@@ -138,7 +159,8 @@ export default function ManualEntryPage() {
             </label>
             <input 
               name="phone"
-              className="w-full p-2 border rounded-md bg-transparent"
+              value={formData.phone}
+              className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
               placeholder="+39 012 3456789"
               onChange={handleChange}
             />
@@ -150,7 +172,7 @@ export default function ManualEntryPage() {
             </label>
             <select 
               name="lead_category"
-              className="w-full p-2 border rounded-md bg-transparent"
+              className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
               onChange={handleChange}
               value={formData.lead_category}
             >
@@ -166,15 +188,16 @@ export default function ManualEntryPage() {
             </label>
             <textarea 
               name="notes"
+              value={formData.notes}
               rows={3}
-              className="w-full p-2 border rounded-md bg-transparent"
+              className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
               placeholder="Aggiungi dettagli sull'incontro o prodotti richiesti..."
               onChange={handleChange}
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            <Save className="mr-2 h-4 w-4" />
+          <Button type="submit" className="w-full py-6 text-lg font-bold bg-primary hover:bg-primary/90 transition-all shadow-lg shadow-primary/20" disabled={loading}>
+            <Save className="mr-2 h-5 w-5" />
             {loading ? 'Salvataggio...' : 'Salva Contatto'}
           </Button>
         </form>
