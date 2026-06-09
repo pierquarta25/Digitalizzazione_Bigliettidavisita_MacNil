@@ -22,13 +22,17 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
+          const isDev = process.env.NODE_ENV === 'development'
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+          cookiesToSet.forEach(({ name, value, options }) => {
+            const adjustedOptions = isDev
+              ? { ...options, secure: false, sameSite: 'lax' as const }
+              : options
+            supabaseResponse.cookies.set(name, value, adjustedOptions)
+          })
         },
       },
     }

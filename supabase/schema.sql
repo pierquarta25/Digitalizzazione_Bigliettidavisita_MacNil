@@ -66,12 +66,13 @@ ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attachments ENABLE ROW LEVEL SECURITY;
 
--- Esempio di policy: Un utente vede solo i contatti del proprio team
-CREATE POLICY "Users can see contacts of their team" ON contacts
+-- Policy: Un utente può gestire i propri contatti o quelli del proprio team
+CREATE POLICY "Users can manage their own or team contacts" ON contacts
   FOR ALL USING (
-    team_id IN (
+    user_id = auth.uid() OR
+    (team_id IS NOT NULL AND team_id IN (
       SELECT team_id FROM profiles WHERE profiles.id = auth.uid()
-    )
+    ))
   );
 
 -- Altre policy simili per events e attachments...

@@ -1,83 +1,76 @@
 import { Button } from '@/components/ui/Button'
-import { Camera, QrCode, ClipboardList, Zap, Shield, BarChart3 } from 'lucide-react'
+import { Camera, QrCode, ClipboardList, CheckCircle, Shield, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/5 to-white py-20 px-4 dark:from-primary/10 dark:to-black">
-          <div className="container mx-auto text-center">
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight md:text-6xl text-zinc-900 dark:text-zinc-50">
-              Digitalizza i tuoi contatti <br />
-              <span className="text-secondary">in un istante</span>
-            </h1>
-            <p className="mx-auto mb-10 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400 md:text-xl">
-              Lo strumento definitivo per fieri, eventi e networking professionale.
-              Acquisisci lead tramite <span className="text-primary font-bold">OCR</span> e <span className="text-primary font-bold">QR code</span> e sincronizzali col tuo CRM.
-            </p>
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <Link href="/scan">
-                <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-bold">
-                  <Camera className="mr-2 h-5 w-5" />
-                  Inizia a Scansionare
-                </Button>
-              </Link>
-              <Link href="/manual-entry">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto border-primary text-primary hover:bg-primary/5 font-bold">
-                  <ClipboardList className="mr-2 h-5 w-5" />
-                  Inserimento Manuale
-                </Button>
-              </Link>
-            </div>
+    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
+      <main className="flex-1 flex flex-col justify-center py-12 md:py-20 px-4">
+        <div className="container mx-auto max-w-3xl text-center">
+          <h1 className="mb-6 text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-zinc-900 dark:text-zinc-50">
+            Digitalizza i tuoi contatti <br />
+            <span className="text-secondary">in un istante</span>
+          </h1>
+          <p className="mx-auto mb-10 max-w-xl text-base text-zinc-500 dark:text-zinc-400 md:text-lg leading-relaxed">
+            Lo strumento ideale per fiere, eventi e networking. 
+            Acquisisci contatti all'istante tramite scansione o codici QR e sincronizzali sul tuo CRM.
+          </p>
+          <div className="flex flex-col justify-center gap-3 sm:flex-row max-w-md mx-auto">
+            <Link href="/scan" className="flex-1">
+              <Button size="lg" className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold rounded-2xl shadow-lg shadow-secondary/15 py-6">
+                <Camera className="mr-2 h-5 w-5" />
+                Scansiona Biglietto
+              </Button>
+            </Link>
+            <Link href="/manual-entry" className="flex-1">
+              <Button variant="outline" size="lg" className="w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-850 font-bold rounded-2xl py-6">
+                <ClipboardList className="mr-2 h-5 w-5" />
+                Inserisci Dati
+              </Button>
+            </Link>
           </div>
-        </section>
+        </div>
 
-        {/* Features Grid */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <h2 className="mb-16 text-center text-3xl font-bold">Funzionalità Principali</h2>
-            
-            <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
-              <FeatureCard 
-                icon={<Camera className="h-8 w-8 text-secondary" />}
-                title="Scansione OCR"
-                description="Estrai automaticamente dati da biglietti da visita fisici usando la potenza dell'AI Vision."
-              />
-              <FeatureCard 
-                icon={<QrCode className="h-8 w-8 text-primary" />}
-                title="Scanner QR"
-                description="Leggi istantaneamente badge e contatti digitali tramite codici QR."
-              />
-              <FeatureCard 
-                icon={<Zap className="h-8 w-8 text-secondary" />}
-                title="Automazione Lead"
-                description="Sincronizzazione immediata con HubSpot e creazione automatica di follow-up."
-              />
-              <FeatureCard 
-                icon={<BarChart3 className="h-8 w-8 text-primary" />}
-                title="Dashboard Team"
-                description="Gestisci il tuo team sales e visualizza le performance in tempo reale."
-              />
-              <FeatureCard 
-                icon={<Shield className="h-8 w-8 text-secondary" />}
-                title="Sicurezza & GDPR"
-                description="Dati protetti, backup cloud automatico e conformità totale."
-              />
-              <FeatureCard 
-                icon={<ClipboardList className="h-8 w-8 text-primary" />}
-                title="Note & Allegati"
-                description="Aggiungi dettagli a ogni lead tramite l'IA per non perdere alcun dettaglio."
-              />
-            </div>
+        {/* Features Section */}
+        <div className="container mx-auto max-w-4xl mt-20 md:mt-28">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <FeatureCard 
+              icon={<Camera className="h-6 w-6 text-secondary" />}
+              title="Riconoscimento Automatico"
+              description="Estrai istantaneamente i dati da biglietti da visita cartacei tramite fotocamera."
+            />
+            <FeatureCard 
+              icon={<QrCode className="h-6 w-6 text-secondary" />}
+              title="Scanner QR Code"
+              description="Leggi badge e contatti digitali in mobilità in una frazione di secondo."
+            />
+            <FeatureCard 
+              icon={<RefreshCw className="h-6 w-6 text-secondary" />}
+              title="Sincronizzazione CRM"
+              description="Invia i contatti direttamente a HubSpot con un solo tocco dalla dashboard."
+            />
+            <FeatureCard 
+              icon={<CheckCircle className="h-6 w-6 text-secondary" />}
+              title="Gestione Semplificata"
+              description="Visualizza, filtra e organizza i contatti acquisiti con un'interfaccia pulita."
+            />
+            <FeatureCard 
+              icon={<Shield className="h-6 w-6 text-secondary" />}
+              title="Sicurezza Integrata"
+              description="Salvataggio sicuro su cloud nel pieno rispetto della privacy."
+            />
+            <FeatureCard 
+              icon={<ClipboardList className="h-6 w-6 text-secondary" />}
+              title="Note e Interessi"
+              description="Associa dettagli specifici e categorie a ciascun lead durante l'evento."
+            />
           </div>
-        </section>
+        </div>
       </main>
 
-      <footer className="border-t py-12 px-4 bg-zinc-50 dark:bg-zinc-950">
-        <div className="container mx-auto text-center text-zinc-500">
-          <p>© 2026 MacNil Contact Manager. Tutti i diritti riservati.</p>
+      <footer className="border-t border-zinc-200/50 dark:border-zinc-900 py-8 px-4 bg-white dark:bg-zinc-950">
+        <div className="container mx-auto text-center text-xs text-zinc-400">
+          <p>© {new Date().getFullYear()} MacNil. Tutti i diritti riservati.</p>
         </div>
       </footer>
     </div>
@@ -86,10 +79,12 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="flex flex-col items-center text-center p-6 border rounded-xl hover:shadow-lg transition-shadow bg-white dark:bg-zinc-900">
-      <div className="mb-4">{icon}</div>
-      <h3 className="mb-2 text-xl font-semibold">{title}</h3>
-      <p className="text-zinc-600 dark:text-zinc-400">{description}</p>
+    <div className="flex flex-col p-6 rounded-2xl border border-zinc-150 dark:border-zinc-900 bg-white dark:bg-zinc-950/40 shadow-sm">
+      <div className="mb-4 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 w-fit flex items-center justify-center">
+        {icon}
+      </div>
+      <h3 className="mb-2 text-sm font-bold text-zinc-900 dark:text-zinc-50">{title}</h3>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{description}</p>
     </div>
   )
 }

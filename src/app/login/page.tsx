@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Mail, Lock, LogIn } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -84,7 +85,10 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-sm text-zinc-500">
-            Non hai un account? Contatta il tuo amministratore.
+            Non hai un account?{' '}
+            <Link href="/signup" className="text-primary hover:underline font-semibold">
+              Registrati ora
+            </Link>
           </p>
         </div>
       </main>
