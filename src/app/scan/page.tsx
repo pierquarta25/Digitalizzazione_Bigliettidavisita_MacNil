@@ -461,7 +461,7 @@ export default function ScanPage() {
               </div>
               <h2 className="text-xl font-bold mb-2">Scanner QR Code</h2>
               <p className="mb-6 text-zinc-500 text-sm px-4">
-                Inquadra un codice QR in tempo reale o carica un'immagine per importare i contatti istantaneamente.
+                Inquadra un codice QR in tempo reale per importare i contatti istantaneamente.
               </p>
 
               <div className="flex flex-col gap-3 w-full">
@@ -471,19 +471,7 @@ export default function ScanPage() {
                   onClick={() => setShowLiveScanner(true)}
                 >
                   <Camera className="mr-2 h-5 w-5" />
-                  Avvia Fotocamera Live
-                </Button>
-
-                {/* Bottone Scegli File / Scatta Foto Fallback */}
-                <Button variant="outline" className="relative cursor-pointer overflow-hidden py-6 border-primary text-primary hover:bg-primary/5 font-bold">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    onChange={(e) => handleImageSelection(e, 'qr')}
-                  />
-                  <Upload className="mr-2 h-5 w-5" />
-                  Carica o Scatta Foto
+                  Avvia Scanner
                 </Button>
               </div>
             </div>
