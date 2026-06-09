@@ -29,7 +29,7 @@ export async function processImageWithGemini(base64Image: string) {
 
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({ 
-    model: 'gemini-2.5-flash-lite',
+    model: 'gemini-1.5-flash',
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: {
@@ -55,14 +55,44 @@ export async function processImageWithGemini(base64Image: string) {
   const base64Data = base64Image.split(',')[1] || base64Image
 
   const prompt = `
-    Sei un assistente esperto nell'estrazione di dati da biglietti da visita.
-    Analizza l'immagine fornita e estrai le informazioni di contatto.
+    Sei un sistema OCR avanzato specializzato nella digitalizzazione ad alta precisione di biglietti da visita.
+    Analizza l'immagine fornita ed estrai le informazioni di contatto.
+
+    REGOLE CRITICHE DI ESTRAZIONE:
+    1. NOME E COGNOME (first_name, last_name):
+       - Identifica il nome e il cognome dell'individuo.
+       - Dividi accuratamente il Nome (first_name) dal Cognome (last_name).
+       - Se ci sono più nomi (es. "Gian Maria"), inseriscili tutti in 'first_name'.
+       - Se è impossibile distinguerli con certezza, metti l'intero blocco in 'first_name' e lascia 'last_name' vuoto ("").
     
-    REGOLE CRITICHE:
-    1. Estrai Nome, Cognome, Azienda, Ruolo, Email, Telefono, Sito Web e Indirizzo.
-    2. Se non riesci a distinguere Nome e Cognome, metti tutto nel campo 'first_name'.
-    3. Il campo 'notes' deve contenere SOLO informazioni AGGIUNTIVE che non rientrano negli altri campi (es. slogan, orari, servizi specifici menzionati).
-    4. NON inserire nelle 'notes' informazioni che hai già inserito nei campi specifici.
+    2. AZIENDA (company):
+       - Identifica il nome dell'azienda (cerca loghi o scritte in evidenza).
+       - Verifica anche il dominio dell'indirizzo email o del sito web per confermare il nome dell'azienda (es. se l'email è "mario.rossi@macnil.it", l'azienda è molto probabilmente "MacNil").
+
+    3. RUOLO (role):
+       - Cerca la qualifica professionale (es. "Amministratore Delegato", "Project Manager", "Account Executive", "Socio", "Consulente").
+       - Di solito è posizionato vicino al nome della persona.
+
+    4. EMAIL (email):
+       - Identifica l'indirizzo email. Rimuovi spazi e correggi ovvi errori di scansione dell'OCR (es. "gmai1.com" in "gmail.com").
+
+    5. TELEFONO (phone):
+       - Estrai il numero di telefono (cellulare o fisso), includendo il prefisso internazionale se presente (es. "+39").
+       - Mantieni una formattazione pulita e leggibile. Se ci sono più numeri, separali con una virgola.
+
+    6. SITO WEB (website):
+       - Cerca l'indirizzo internet (es. "www.macnil.it").
+
+    7. INDIRIZZO (address):
+       - Cerca l'indirizzo fisico completo (via, cap, città, provincia) e uniscilo in una stringa ordinata.
+
+    8. NOTE (notes):
+       - Inserisci SOLO informazioni utili aggiuntive presenti sul biglietto che non rientrano nei campi precedenti (es. Partita IVA, profili social come LinkedIn, orari, servizi offerti, slogan).
+       - NON duplicare informazioni già estratte in altri campi.
+
+    LINEE GUIDA GENERALI PER L'ACCURATEZZA:
+    - Sii estremamente preciso. Non inventare o allucinare informazioni.
+    - Se un campo non è presente nel biglietto da visita o non è leggibile, restituisci una stringa vuota ("") per quel campo.
   `
 
   try {
@@ -98,7 +128,7 @@ export async function processTextWithGemini(rawText: string) {
 
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({ 
-    model: 'gemini-2.5-flash-lite',
+    model: 'gemini-1.5-flash',
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: {
@@ -120,8 +150,15 @@ export async function processTextWithGemini(rawText: string) {
   })
 
   const prompt = `
-    Estrai i dati di contatto da questo testo OCR: "${rawText}"
-    Non duplicare i dati nelle note.
+    Sei un sistema di analisi dati specializzato nella formattazione di testi OCR di biglietti da visita.
+    Analizza il testo fornito ed estrai le informazioni di contatto in modo estremamente accurato.
+    Testo da analizzare: "${rawText}"
+
+    REGOLE CRITICHE:
+    1. Dividi accuratamente Nome (first_name) e Cognome (last_name).
+    2. Identifica l'Azienda (company), il Ruolo (role), l'Email (email), il Telefono (phone), il Sito Web (website) e l'Indirizzo (address).
+    3. Inserisci in 'notes' solo dati secondari utili (Partita IVA, LinkedIn, slogan) senza duplicare i campi precedenti.
+    4. Se un campo non è presente o non è identificabile nel testo, restituisci una stringa vuota (""). Non allucinare dati.
   `
 
   try {
