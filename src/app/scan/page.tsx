@@ -115,6 +115,8 @@ export default function ScanPage() {
     setProcessing(true)
     setStatus(type === 'qr' ? 'Lettura QR Code...' : 'Caricamento immagine biglietto...')
 
+    let delegated = false
+
     try {
       // Pulisce l'eventuale URL blob precedente per liberare memoria
       if (selectedImage && selectedImage.startsWith('blob:')) {
@@ -163,12 +165,14 @@ export default function ScanPage() {
             }
           } else {
             const blobUrl = URL.createObjectURL(blob)
-            setSelectedImage(blobUrl)
+            delegated = true
+            processAndUpload(blobUrl, 0, 0, 0, false, convertedFile, 'card')
           }
         } catch (heicErr) {
           console.error("Errore conversione HEIC:", heicErr)
-          // Fallback a placeholder
-          setSelectedImage('heic-placeholder')
+          // Fallback a invio diretto del file originale
+          delegated = true
+          uploadOriginalFile(file)
         }
       } else {
         if (type === 'qr') {
@@ -188,7 +192,8 @@ export default function ScanPage() {
           }
         } else {
           const blobUrl = URL.createObjectURL(file)
-          setSelectedImage(blobUrl)
+          delegated = true
+          processAndUpload(blobUrl, 0, 0, 0, false, file, 'card')
         }
       }
 
@@ -199,8 +204,10 @@ export default function ScanPage() {
       console.error('Error handling file selection:', error)
       alert("Impossibile caricare l'immagine. Assicurati che sia un formato valido (JPEG, PNG, HEIC).")
     } finally {
-      setProcessing(false)
-      setStatus('')
+      if (!delegated) {
+        setProcessing(false)
+        setStatus('')
+      }
     }
   }
 
@@ -266,18 +273,30 @@ export default function ScanPage() {
   }
 
   // Esegue il bake dei filtri su Canvas, comprime e invia all'API o esegue la decodifica QR
-  const processAndUpload = (imageSrc: string, currentContrast: number, currentBrightness: number, currentRotation: number) => {
-    if (isHeic && currentFile) {
-      if (scanType === 'qr') {
+  const processAndUpload = (
+    imageSrc: string, 
+    currentContrast: number, 
+    currentBrightness: number, 
+    currentRotation: number,
+    overrideIsHeic?: boolean,
+    overrideFile?: File | null,
+    overrideScanType?: 'card' | 'qr'
+  ) => {
+    const activeIsHeic = overrideIsHeic !== undefined ? overrideIsHeic : isHeic
+    const activeFile = overrideFile !== undefined ? overrideFile : currentFile
+    const activeScanType = overrideScanType !== undefined ? overrideScanType : scanType
+
+    if (activeIsHeic && activeFile) {
+      if (activeScanType === 'qr') {
         alert("La decodifica diretta di QR Code in formato HEIC non è supportata dal browser. Converti il file in JPEG/PNG o scatta una foto in tempo reale.")
         return
       }
-      uploadOriginalFile(currentFile)
+      uploadOriginalFile(activeFile)
       return
     }
 
     setProcessing(true)
-    setStatus(scanType === 'qr' ? 'Lettura e analisi del QR Code...' : 'Elaborazione dell\'immagine in corso...')
+    setStatus(activeScanType === 'qr' ? 'Lettura e analisi del QR Code...' : 'Elaborazione dell\'immagine in corso...')
     
     const img = new Image()
     img.onload = async () => {
@@ -291,8 +310,8 @@ export default function ScanPage() {
         const width = isRotated90or270 ? img.height : img.width
         const height = isRotated90or270 ? img.width : img.height
 
-        // Limita le dimensioni per ottimizzare il payload (max 1200px)
-        const maxDim = 1200
+        // Limita le dimensioni per ottimizzare il payload (max 800px per biglietto, 600px per QR)
+        const maxDim = activeScanType === 'qr' ? 600 : 800
         let scale = 1
         if (Math.max(width, height) > maxDim) {
           scale = maxDim / Math.max(width, height)
@@ -316,7 +335,7 @@ export default function ScanPage() {
         ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight)
 
         // Se è scansione QR Code:
-        if (scanType === 'qr') {
+        if (activeScanType === 'qr') {
           canvas.toBlob(async (blob) => {
             if (!blob) {
               alert("Errore durante l'elaborazione dell'immagine per la scansione QR.")
@@ -352,7 +371,8 @@ export default function ScanPage() {
         }
 
         // Se è scansione Biglietto da Visita:
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+        // Ridotta qualità a 0.7 per dimezzare la dimensione del payload base64
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7)
 
         // Rilascia l'URL blob per liberare memoria prima di procedere
         if (imageSrc.startsWith('blob:')) {
@@ -400,12 +420,12 @@ export default function ScanPage() {
     }
     img.onerror = () => {
       // Se l'immagine non si carica nel Canvas per l'editor, offriamo l'invio diretto dell'originale
-      if (currentFile) {
+      if (activeFile) {
         const confirmDirect = confirm(
           "L'anteprima non si carica correttamente nel browser. Vuoi provare a inviare l'immagine originale direttamente per l'estrazione dei dati?"
         )
         if (confirmDirect) {
-          uploadOriginalFile(currentFile)
+          uploadOriginalFile(activeFile)
           return
         }
       } else {
