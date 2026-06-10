@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Search, Building2, Mail, Phone, ExternalLink, X, Globe, MapPin, Calendar, CheckCircle, AlertCircle, MessageSquare, Camera, Activity, Sparkles, Tag, ChevronRight } from 'lucide-react'
+import { Search, Building2, Mail, Phone, ExternalLink, X, Globe, MapPin, Calendar, CheckCircle, AlertCircle, MessageSquare, Camera, Activity, Sparkles, Tag, ChevronRight, FileSpreadsheet } from 'lucide-react'
 import { syncContact } from '@/lib/actions/contacts'
+import * as XLSX from 'xlsx'
 
 interface ContactsListClientProps {
   initialContacts: any[]
@@ -49,18 +50,82 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
     )
   })
 
+  // Esporta i contatti filtrati in un foglio Excel nativo (.xlsx)
+  const exportToExcel = () => {
+    try {
+      if (filteredContacts.length === 0) {
+        alert('Nessun contatto da esportare.')
+        return
+      }
+
+      const rows = filteredContacts.map((c) => ({
+        'Nome': c.first_name || '',
+        'Cognome': c.last_name || '',
+        'Azienda': c.company || '',
+        'Ruolo': c.role || '',
+        'Email': c.email || '',
+        'Telefono': c.phone || '',
+        'Sito Web': c.website || '',
+        'Indirizzo': c.address || '',
+        'Categoria Lead': c.lead_category || '',
+        'Sincronizzato HubSpot': c.hubspot_id ? 'Sì' : 'No',
+        'ID HubSpot': c.hubspot_id || '',
+        'Note': c.notes || '',
+        'Data di Acquisizione': c.created_at ? new Date(c.created_at).toLocaleString('it-IT') : ''
+      }))
+
+      const worksheet = XLSX.utils.json_to_sheet(rows)
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Contatti')
+
+      // Calcola e regola la larghezza delle colonne per evitare troncamenti
+      const maxLens = Object.keys(rows[0] || {}).reduce((acc: any, key: string) => {
+        let maxLen = key.length
+        rows.forEach((row: any) => {
+          const val = String(row[key] || '')
+          if (val.length > maxLen) {
+            maxLen = val.length
+          }
+        })
+        acc[key] = Math.min(Math.max(maxLen + 2, 10), 50)
+        return acc
+      }, {})
+
+      worksheet['!cols'] = Object.keys(maxLens).map((key: string) => ({
+        wch: maxLens[key]
+      }))
+
+      const today = new Date().toISOString().split('T')[0]
+      XLSX.writeFile(workbook, `Contatti_MacNil_${today}.xlsx`)
+    } catch (error: any) {
+      console.error('Errore durante esportazione Excel:', error)
+      alert("Impossibile esportare i dati in Excel. Riprova.")
+    }
+  }
+
   return (
     <>
-      {/* Search Bar */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-        <input 
-          type="text" 
-          placeholder="Cerca contatti..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 rounded-2xl border bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800/60 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm shadow-sm placeholder-zinc-400 text-zinc-900 dark:text-zinc-100"
-        />
+      {/* Search Bar & Actions */}
+      <div className="flex gap-2 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+          <input 
+            type="text" 
+            placeholder="Cerca contatti..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-2xl border bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800/60 focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm shadow-sm placeholder-zinc-400 text-zinc-900 dark:text-zinc-100"
+          />
+        </div>
+        {initialContacts.length > 0 && (
+          <Button 
+            onClick={exportToExcel}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold px-4 py-3 h-auto text-xs shadow-sm flex items-center gap-1.5 transition-all shrink-0"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            <span className="hidden sm:inline">Esporta</span>
+          </Button>
+        )}
       </div>
 
       {/* Contacts List */}
