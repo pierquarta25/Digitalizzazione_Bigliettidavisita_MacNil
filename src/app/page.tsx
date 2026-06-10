@@ -34,8 +34,8 @@ export default async function HomePage() {
             </span>
           </div>
           
-          {/* Pulsante Nuovo compatto ed elegante sia per Desktop che per Mobile */}
-          <Link href="/scan">
+          {/* Pulsante Nuovo compatto ed elegante solo per Desktop */}
+          <Link href="/scan" className="hidden md:inline-block">
             <Button size="sm" className="font-bold bg-secondary hover:bg-secondary/90 text-white rounded-xl shadow-md transition-all px-4 py-2.5 text-xs">
               <Plus className="mr-1 h-4 w-4 stroke-[3]" />
               Nuovo
