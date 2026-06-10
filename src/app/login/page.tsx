@@ -29,7 +29,7 @@ export default function LoginPage() {
       setError('Credenziali non valide. Riprova.')
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      router.push('/')
       router.refresh()
     }
   }

@@ -74,7 +74,7 @@ export default function NavbarClient({ user }: NavbarClientProps) {
                   {/* Voci di navigazione */}
                   <div className="py-1">
                     <Link 
-                      href="/dashboard" 
+                      href="/" 
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-2.5 px-4 py-3 text-sm text-zinc-200 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                     >

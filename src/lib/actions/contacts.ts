@@ -109,7 +109,7 @@ export async function createContact(formData: any) {
     console.error('HubSpot sync failed in action:', err)
   }
 
-  revalidatePath('/dashboard')
+  revalidatePath('/')
   return { success: true, contact }
 }
 
@@ -138,7 +138,7 @@ export async function syncContact(contactId: string) {
       .update({ hubspot_id: hubspotId })
       .eq('id', contact.id)
     
-    revalidatePath('/dashboard')
+    revalidatePath('/')
     return { success: true, hubspotId }
   } else {
     throw new Error('Sincronizzazione con HubSpot fallita. Controlla la chiave API.')

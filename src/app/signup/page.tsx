@@ -46,7 +46,7 @@ export default function SignupPage() {
 
       if (data?.session) {
         // Se la conferma email è disattivata, l'utente viene loggato immediatamente
-        router.push('/dashboard')
+        router.push('/')
         router.refresh()
       } else {
         // Se la conferma email è attiva, mostriamo il messaggio di successo

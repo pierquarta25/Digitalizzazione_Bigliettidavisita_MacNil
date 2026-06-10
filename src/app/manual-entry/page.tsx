@@ -81,7 +81,7 @@ function ManualEntryForm() {
         } catch (e) {}
         
         alert('Contatto salvato e sincronizzato!')
-        router.push('/dashboard')
+        router.push('/')
       }
     } catch (error: any) {
       console.error('Error saving contact:', error.message)

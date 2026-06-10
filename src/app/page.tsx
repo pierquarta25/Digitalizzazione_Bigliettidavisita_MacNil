@@ -1,90 +1,77 @@
+import { createClient } from '@/utils/supabase/server'
 import { Button } from '@/components/ui/Button'
-import { Camera, QrCode, ClipboardList, CheckCircle, Shield, RefreshCw } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import ContactsListClient from '@/components/ContactsListClient'
 
-export default function Home() {
+export default async function HomePage() {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  // Recupera i contatti dell'utente comprensivi di immagini allegate
+  const { data: contacts } = await supabase
+    .from('contacts')
+    .select('*, attachments(*)')
+    .order('created_at', { ascending: false })
+
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
-      <main className="flex-1 flex flex-col justify-center py-12 md:py-20 px-4">
-        <div className="container mx-auto max-w-3xl text-center">
-          <h1 className="mb-6 text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-zinc-900 dark:text-zinc-50">
-            Digitalizza i tuoi contatti <br />
-            <span className="text-secondary">in un istante</span>
-          </h1>
-          <p className="mx-auto mb-10 max-w-xl text-base text-zinc-500 dark:text-zinc-400 md:text-lg leading-relaxed">
-            Lo strumento ideale per fiere, eventi e networking. 
-            Acquisisci contatti all'istante tramite scansione o codici QR e sincronizzali sul tuo CRM.
-          </p>
-          <div className="flex flex-col justify-center gap-3 sm:flex-row max-w-md mx-auto">
-            <Link href="/scan" className="flex-1">
-              <Button size="lg" className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold rounded-2xl shadow-lg shadow-secondary/15 py-6">
-                <Camera className="mr-2 h-5 w-5" />
-                Scansiona Biglietto
-              </Button>
-            </Link>
-            <Link href="/manual-entry" className="flex-1">
-              <Button variant="outline" size="lg" className="w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-850 font-bold rounded-2xl py-6">
-                <ClipboardList className="mr-2 h-5 w-5" />
-                Inserisci Dati
-              </Button>
-            </Link>
+    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black pb-20 md:pb-8">
+      <main className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
+        {/* Header Sezione Minimalista */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">
+              I Tuoi Lead
+            </h1>
+            <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-xs font-bold font-mono">
+              {contacts?.length || 0}
+            </span>
           </div>
+          
+          {/* Pulsante Nuovo compatto ed elegante sia per Desktop che per Mobile */}
+          <Link href="/scan">
+            <Button size="sm" className="font-bold bg-secondary hover:bg-secondary/90 text-white rounded-xl shadow-md transition-all px-4 py-2.5 text-xs">
+              <Plus className="mr-1 h-4 w-4 stroke-[3]" />
+              Nuovo
+            </Button>
+          </Link>
         </div>
 
-        {/* Features Section */}
-        <div className="container mx-auto max-w-4xl mt-20 md:mt-28">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <FeatureCard 
-              icon={<Camera className="h-6 w-6 text-secondary" />}
-              title="Riconoscimento Automatico"
-              description="Estrai istantaneamente i dati da biglietti da visita cartacei tramite fotocamera."
-            />
-            <FeatureCard 
-              icon={<QrCode className="h-6 w-6 text-secondary" />}
-              title="Scanner QR Code"
-              description="Leggi badge e contatti digitali in mobilità in una frazione di secondo."
-            />
-            <FeatureCard 
-              icon={<RefreshCw className="h-6 w-6 text-secondary" />}
-              title="Sincronizzazione CRM"
-              description="Invia i contatti direttamente a HubSpot con un solo tocco dalla dashboard."
-            />
-            <FeatureCard 
-              icon={<CheckCircle className="h-6 w-6 text-secondary" />}
-              title="Gestione Semplificata"
-              description="Visualizza, filtra e organizza i contatti acquisiti con un'interfaccia pulita."
-            />
-            <FeatureCard 
-              icon={<Shield className="h-6 w-6 text-secondary" />}
-              title="Sicurezza Integrata"
-              description="Salvataggio sicuro su cloud nel pieno rispetto della privacy."
-            />
-            <FeatureCard 
-              icon={<ClipboardList className="h-6 w-6 text-secondary" />}
-              title="Note e Interessi"
-              description="Associa dettagli specifici e categorie a ciascun lead durante l'evento."
-            />
-          </div>
+        {/* Statistiche Flat & Minimaliste */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <StatCard label="Totale Lead" value={contacts?.length || 0} />
+          <StatCard label="Contatti Hot" value={contacts?.filter(c => c.lead_category === 'hot').length || 0} colorClass="text-red-500" />
+          <StatCard label="Da Sincronizzare" value={contacts?.filter(c => !c.hubspot_id).length || 0} colorClass="text-amber-500" />
+          <StatCard label="Acquisiti Oggi" value={contacts?.filter(c => new Date(c.created_at).toDateString() === new Date().toDateString()).length || 0} />
         </div>
+
+        {/* Client Component per ricerca, lista e dettagli */}
+        <ContactsListClient initialContacts={contacts || []} />
       </main>
 
-      <footer className="border-t border-zinc-200/50 dark:border-zinc-900 py-8 px-4 bg-white dark:bg-zinc-950">
-        <div className="container mx-auto text-center text-xs text-zinc-400">
-          <p>© {new Date().getFullYear()} MacNil. Tutti i diritti riservati.</p>
-        </div>
-      </footer>
+      {/* Pulsante Mobile FAB rotondo minimalista */}
+      <div className="fixed bottom-6 right-6 md:hidden z-50">
+        <Link href="/scan">
+          <button className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-white shadow-xl shadow-secondary/30 active:scale-95 transition-all">
+            <Plus className="h-6 w-6 stroke-[3]" />
+          </button>
+        </Link>
+      </div>
     </div>
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function StatCard({ label, value, colorClass = "text-secondary" }: { label: string, value: number | string, colorClass?: string }) {
   return (
-    <div className="flex flex-col p-6 rounded-2xl border border-zinc-150 dark:border-zinc-900 bg-white dark:bg-zinc-950/40 shadow-sm">
-      <div className="mb-4 p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 w-fit flex items-center justify-center">
-        {icon}
-      </div>
-      <h3 className="mb-2 text-sm font-bold text-zinc-900 dark:text-zinc-50">{title}</h3>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{description}</p>
+    <div className="bg-white dark:bg-zinc-900/30 p-4 rounded-2xl border border-zinc-150 dark:border-zinc-900/60 shadow-sm flex flex-col justify-center text-center sm:text-left">
+      <div className={`text-xl md:text-2xl font-extrabold ${colorClass} tracking-tight`}>{value}</div>
+      <div className="text-[9px] uppercase tracking-wider font-semibold text-zinc-400 mt-1">{label}</div>
     </div>
   )
 }
