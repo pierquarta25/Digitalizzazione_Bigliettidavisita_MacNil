@@ -2,19 +2,28 @@
 
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
 
-async function generateContentWithRetry(model: any, content: any, maxAttempts = 3): Promise<any> {
+async function generateContentWithRetry(model: any, content: any, maxAttempts = 5): Promise<any> {
   let attempt = 0
   while (attempt < maxAttempts) {
     try {
       return await model.generateContent(content)
     } catch (error: any) {
       attempt++
-      const isTransient = error.status === 503 || error.status === 429 || (error.message && (error.message.includes('503') || error.message.includes('429')))
-      console.warn(`Gemini API attempt ${attempt} failed:`, error.message)
+      const isTransient = 
+        !error.status ||
+        error.status === 503 || 
+        error.status === 429 || 
+        error.status === 500 ||
+        (error.message && /429|503|500|resource|exhausted|quota|limit|unavailable|overload|service/i.test(error.message))
+      
+      console.warn(`Tentativo API Gemini ${attempt} fallito:`, error.message || error)
       if (attempt >= maxAttempts || !isTransient) {
         throw error
       }
-      const delay = Math.pow(2, attempt) * 1000
+      const baseDelay = Math.pow(2, attempt) * 1000
+      const jitter = Math.random() * 1000
+      const delay = baseDelay + jitter
+      console.log(`Attesa di ${Math.round(delay)}ms prima del tentativo ${attempt + 1}...`)
       await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
@@ -112,8 +121,13 @@ export async function processImageWithGemini(base64Image: string) {
     return JSON.parse(text.trim())
   } catch (error: any) {
     console.error('ERRORE GEMINI VISION:', error)
-    if (error.status === 503 || (error.message && error.message.includes('503'))) {
-      throw new Error('Il servizio di lettura automatica dei contatti è momentaneamente sovraccarico. Riprova tra qualche istante.')
+    const isQuotaOrOverload = 
+      error.status === 503 || 
+      error.status === 429 || 
+      (error.message && /429|503|resource|exhausted|quota|limit|unavailable|overload/i.test(error.message))
+      
+    if (isQuotaOrOverload) {
+      throw new Error('Il servizio di lettura automatica dei contatti è momentaneamente sovraccarico o ha esaurito la quota. Riprova tra qualche istante.')
     }
     throw new Error(error.message || "Impossibile completare la scansione dell'immagine.")
   }
