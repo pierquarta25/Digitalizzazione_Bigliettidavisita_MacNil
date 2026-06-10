@@ -66,29 +66,9 @@ export default function NavbarClient({ user }: NavbarClientProps) {
               {isOpen && (
                 <div className="absolute right-0 top-14 z-50 w-64 rounded-2xl border border-white/10 bg-[#0b2240] p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150">
                   {/* Sezione Profilo Attivo */}
-                  <div className="px-4 py-3 border-b border-white/10 bg-white/5 rounded-t-xl">
+                  <div className="px-4 py-3 bg-white/5 rounded-t-xl">
                     <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold">Profilo attivo</p>
                     <p className="text-sm font-semibold text-white truncate mt-0.5">{user.email}</p>
-                  </div>
-
-                  {/* Voci di navigazione */}
-                  <div className="py-1">
-                    <Link 
-                      href="/" 
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-zinc-200 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      <LayoutDashboard className="h-4 w-4 text-secondary" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link 
-                      href="/scan" 
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-3 text-sm text-zinc-200 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                    >
-                      <Camera className="h-4 w-4 text-secondary" />
-                      <span>Scansiona Contatto</span>
-                    </Link>
                   </div>
 
                   {/* Pulsante Uscita */}
