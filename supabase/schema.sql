@@ -76,3 +76,10 @@ CREATE POLICY "Users can manage their own or team contacts" ON contacts
   );
 
 -- Altre policy simili per events e attachments...
+
+-- 6. RLS per tabelle interne/generate
+ALTER TABLE IF EXISTS public.password_reset_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.cache_locks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.service_requests ENABLE ROW LEVEL SECURITY;
