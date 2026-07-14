@@ -524,6 +524,7 @@ export default function ScanPage() {
                     accept="image/*" 
                     capture="environment"
                     className="absolute inset-0 opacity-0 cursor-pointer"
+                    aria-label="Scatta foto da fotocamera"
                     onChange={(e) => handleImageSelection(e, 'card')}
                   />
                   <Camera className="mr-2 h-5 w-5" />
@@ -536,6 +537,7 @@ export default function ScanPage() {
                     type="file" 
                     accept="image/*" 
                     className="absolute inset-0 opacity-0 cursor-pointer"
+                    aria-label="Carica immagine da galleria"
                     onChange={(e) => handleImageSelection(e, 'card')}
                   />
                   <Upload className="mr-2 h-5 w-5" />

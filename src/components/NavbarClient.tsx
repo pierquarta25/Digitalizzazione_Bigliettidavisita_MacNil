@@ -53,7 +53,7 @@ export default function NavbarClient({ user }: NavbarClientProps) {
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center justify-center gap-2 p-2 rounded-xl text-white hover:bg-white/10 border border-white/10 bg-white/5 transition-all active:scale-95"
-                aria-label="Menu utente"
+                aria-label={`Menu utente ${user.email}`}
               >
                 <User className="h-5 w-5 text-secondary" />
                 <span className="hidden md:inline text-xs max-w-[150px] truncate font-medium text-zinc-200">
