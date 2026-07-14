@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import ContactsListClient from '@/components/ContactsListClient'
+import { decrypt } from '@/utils/crypto'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -15,10 +16,18 @@ export default async function HomePage() {
   }
 
   // Recupera i contatti dell'utente comprensivi di immagini allegate
-  const { data: contacts } = await supabase
+  const { data: rawContacts } = await supabase
     .from('contacts')
     .select('*, attachments(*)')
     .order('created_at', { ascending: false })
+
+  // Decrittografia dei dati sensibili in memoria prima di visualizzarli
+  const contacts = rawContacts?.map((c: any) => ({
+    ...c,
+    email: decrypt(c.email),
+    phone: decrypt(c.phone),
+    notes: decrypt(c.notes)
+  })) || []
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black pb-20 md:pb-8">
