@@ -142,11 +142,7 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
                   <h3 className="text-sm font-bold text-zinc-950 dark:text-zinc-50 truncate">
                     {contact.first_name} {contact.last_name}
                   </h3>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                    contact.lead_category === 'hot' ? 'bg-destructive/10 text-destructive' :
-                    contact.lead_category === 'warm' ? 'bg-amber-500/10 text-amber-500' :
-                    'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-500`}>
                     {contact.lead_category}
                   </span>
                 </div>
@@ -261,11 +257,7 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
                 <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-900">
                   <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                     <span>Categoria:</span>
-                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase ${
-                      selectedContact.lead_category === 'hot' ? 'bg-destructive/10 text-destructive' :
-                      selectedContact.lead_category === 'warm' ? 'bg-amber-500/10 text-amber-500' :
-                      'bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
                       {selectedContact.lead_category}
                     </span>
                   </div>

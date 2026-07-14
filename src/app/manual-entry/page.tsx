@@ -25,7 +25,7 @@ function ManualEntryForm() {
     website: '',
     address: '',
     notes: '',
-    lead_category: 'warm',
+    lead_category: 'Cliente',
     interest: '',
   })
 
@@ -263,9 +263,10 @@ function ManualEntryForm() {
                     onChange={handleChange}
                     value={formData.lead_category}
                   >
-                    <option value="hot">🔥 Hot (Molto interessato)</option>
-                    <option value="warm">⚡ Warm (Interessato)</option>
-                    <option value="cold">❄️ Cold (Poco interessato)</option>
+                    <option value="Cliente">Cliente</option>
+                    <option value="Business Partner">Business Partner</option>
+                    <option value="Distributore">Distributore</option>
+                    <option value="Installatore">Installatore</option>
                   </select>
                 </div>
 
