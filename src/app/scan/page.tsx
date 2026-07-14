@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Camera, QrCode, Upload, ArrowLeft, Loader2, Sliders, Sun, RotateCw, Sparkles, X, AlertCircle } from 'lucide-react'
+import { Camera, QrCode, Upload, ArrowLeft, Loader2, Sliders, Sun, RotateCw, Sparkles, X, AlertCircle, Keyboard } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { parseVCard } from '@/utils/parser'
@@ -493,6 +493,16 @@ export default function ScanPage() {
                   <Camera className="mr-2 h-5 w-5" />
                   Avvia Scanner
                 </Button>
+                
+                <Link href="/manual-entry" className="w-full block">
+                  <Button 
+                    variant="outline"
+                    className="w-full py-6 font-semibold border-2"
+                  >
+                    <Keyboard className="mr-2 h-5 w-5" />
+                    Inserimento Manuale
+                  </Button>
+                </Link>
               </div>
             </div>
 
