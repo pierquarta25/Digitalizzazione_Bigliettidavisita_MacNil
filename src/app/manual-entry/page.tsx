@@ -173,7 +173,6 @@ function ManualEntryForm() {
                     required
                     value={formData.first_name}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. Mario"
                     onChange={handleChange}
                   />
                 </div>
@@ -184,7 +183,6 @@ function ManualEntryForm() {
                     required
                     value={formData.last_name}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. Rossi"
                     onChange={handleChange}
                   />
                 </div>
@@ -199,7 +197,6 @@ function ManualEntryForm() {
                     name="company"
                     value={formData.company}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. MacNil"
                     onChange={handleChange}
                   />
                 </div>
@@ -209,7 +206,6 @@ function ManualEntryForm() {
                     name="role"
                     value={formData.role}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. CEO"
                     onChange={handleChange}
                   />
                 </div>
@@ -225,7 +221,6 @@ function ManualEntryForm() {
                     type="email"
                     value={formData.email}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="mario.rossi@azienda.it"
                     onChange={handleChange}
                   />
                 </div>
@@ -238,7 +233,6 @@ function ManualEntryForm() {
                     name="phone"
                     value={formData.phone}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="+39 012 3456789"
                     onChange={handleChange}
                   />
                 </div>
@@ -252,7 +246,6 @@ function ManualEntryForm() {
                   name="website"
                   value={formData.website}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                  placeholder="www.azienda.it"
                   onChange={handleChange}
                 />
               </div>
@@ -266,7 +259,6 @@ function ManualEntryForm() {
                   value={formData.address}
                   rows={2}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                  placeholder="Es. Via Bari 12, Altamura (BA)"
                   onChange={handleChange}
                 />
               </div>
@@ -278,7 +270,6 @@ function ManualEntryForm() {
                     name="city"
                     value={formData.city}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. Altamura"
                     onChange={handleChange}
                   />
                 </div>
@@ -329,7 +320,6 @@ function ManualEntryForm() {
                     name="postal_code"
                     value={formData.postal_code}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. 70022"
                     onChange={handleChange}
                   />
                 </div>
@@ -339,7 +329,6 @@ function ManualEntryForm() {
                     name="region"
                     value={formData.region}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. Puglia"
                     onChange={handleChange}
                   />
                 </div>
@@ -349,7 +338,6 @@ function ManualEntryForm() {
                     name="country"
                     value={formData.country}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Es. Italia"
                     onChange={handleChange}
                   />
                 </div>
@@ -363,7 +351,6 @@ function ManualEntryForm() {
                   name="vat_number"
                   value={formData.vat_number}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all uppercase"
-                  placeholder="Es. 01234567890"
                   onChange={handleChange}
                 />
               </div>
@@ -440,14 +427,13 @@ function ManualEntryForm() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-zinc-400" /> Note / Interessi
+                    <MessageSquare className="h-4 w-4 text-zinc-400" /> Note
                   </label>
                   <textarea 
                     name="notes"
                     value={formData.notes}
                     rows={3}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    placeholder="Dettagli sull'incontro o prodotti richiesti..."
                     onChange={handleChange}
                   />
                 </div>

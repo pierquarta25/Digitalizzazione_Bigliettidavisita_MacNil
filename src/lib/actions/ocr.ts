@@ -110,8 +110,7 @@ export async function processImageWithGemini(base64Image: string) {
        - Estrai la Partita IVA (PIVA) o il Codice Fiscale dell'azienda, se presenti.
 
     9. NOTE (notes):
-       - Inserisci SOLO informazioni utili aggiuntive presenti sul biglietto che non rientrano nei campi precedenti (es. profili social come LinkedIn, orari, servizi offerti, slogan).
-       - NON duplicare informazioni già estratte in altri campi.
+       - Lascia questo campo SEMPRE vuoto (restituisci stringa vuota ""), l'utente lo compilerà manualmente in seguito.
 
     LINEE GUIDA GENERALI PER L'ACCURATEZZA:
     - Sii estremamente preciso. Non inventare o allucinare informazioni.
@@ -193,7 +192,7 @@ export async function processTextWithGemini(rawText: string) {
     2. Identifica l'Azienda (company), il Ruolo (role), l'Email (email), il Telefono (phone) e il Sito Web (website).
     3. Per i dati geografici dividi in: 'address' (via), 'city', 'province' (formato esatto "SIGLA - Nome", es. "BA - Bari"), 'postal_code', 'region', 'country'.
     4. Identifica la Partita IVA in 'vat_number'.
-    5. Inserisci in 'notes' solo dati secondari utili (LinkedIn, slogan) senza duplicare i campi precedenti.
+    5. Lascia il campo 'notes' SEMPRE vuoto (stringa vuota ""), verrà compilato a mano.
     6. Se un campo non è presente o non è identificabile nel testo, restituisci una stringa vuota (""). Non allucinare dati.
   `
 
