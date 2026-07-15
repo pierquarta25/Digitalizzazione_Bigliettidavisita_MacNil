@@ -67,8 +67,14 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
         'Telefono': c.phone || '',
         'Sito Web': c.website || '',
         'Indirizzo': c.address || '',
+        'Città': c.metadata?.city || '',
+        'Provincia': c.metadata?.province || '',
+        'CAP': c.metadata?.postal_code || '',
+        'Regione': c.metadata?.region || '',
+        'Nazione': c.metadata?.country || '',
         'Partita Iva': c.metadata?.vat_number || '',
         'Categoria Lead': c.lead_category || '',
+        'Linea Business': Array.isArray(c.metadata?.business_line) ? c.metadata.business_line.join(', ') : (c.metadata?.business_line || ''),
         'Sincronizzato HubSpot': c.hubspot_id ? 'Sì' : 'No',
         'ID HubSpot': c.hubspot_id || '',
         'Note': c.notes || '',
@@ -237,6 +243,11 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
                   <DetailRow icon={<Phone className="h-4 w-4" />} label="Telefono" value={selectedContact.phone} isLink href={`tel:${selectedContact.phone}`} />
                   <DetailRow icon={<Globe className="h-4 w-4" />} label="Sito Web" value={selectedContact.website} isLink href={selectedContact.website ? (selectedContact.website.startsWith('http') ? selectedContact.website : `https://${selectedContact.website}`) : ''} />
                   <DetailRow icon={<MapPin className="h-4 w-4" />} label="Indirizzo" value={selectedContact.address} />
+                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Città" value={selectedContact.metadata?.city} />
+                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Provincia" value={selectedContact.metadata?.province} />
+                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="CAP" value={selectedContact.metadata?.postal_code} />
+                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Regione" value={selectedContact.metadata?.region} />
+                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Nazione" value={selectedContact.metadata?.country} />
                   <DetailRow icon={<Building2 className="h-4 w-4" />} label="Partita Iva" value={selectedContact.metadata?.vat_number} />
                   <DetailRow icon={<Calendar className="h-4 w-4" />} label="Acquisito il" value={new Date(selectedContact.created_at).toLocaleString('it-IT')} />
                   <DetailRow icon={<Activity className="h-4 w-4" />} label="Stato Contatto" value={
@@ -257,12 +268,25 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-900">
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
                     <span>Categoria:</span>
                     <span className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
                       {selectedContact.lead_category}
                     </span>
                   </div>
+                  {selectedContact.metadata?.business_line && selectedContact.metadata.business_line.length > 0 && (
+                    <>
+                      <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-800" />
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
+                        <span>Linea:</span>
+                        {selectedContact.metadata.business_line.map((line: string) => (
+                          <span key={line} className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
+                            {line}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
                   <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-800" />
                   <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                     <span>HubSpot:</span>

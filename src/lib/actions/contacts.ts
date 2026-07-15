@@ -51,7 +51,7 @@ export async function createContact(formData: any) {
   })
 
   // 2. Cifratura (Encryption) dei campi sensibili e gestione metadata
-  const { vat_number, metadata, ...restContactData } = contactData as any;
+  const { vat_number, metadata, city, province, postal_code, region, country, business_line, ...restContactData } = contactData as any;
   const encryptedContactData = {
     ...restContactData,
     email: encrypt(contactData.email as string),
@@ -59,7 +59,13 @@ export async function createContact(formData: any) {
     notes: encrypt(contactData.notes as string),
     metadata: {
       ...(metadata || {}),
-      ...(vat_number ? { vat_number } : {})
+      ...(vat_number ? { vat_number } : {}),
+      ...(city ? { city } : {}),
+      ...(province ? { province } : {}),
+      ...(postal_code ? { postal_code } : {}),
+      ...(region ? { region } : {}),
+      ...(country ? { country } : {}),
+      ...(business_line ? { business_line } : {})
     }
   }
 

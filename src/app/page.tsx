@@ -52,13 +52,6 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {/* Statistiche Flat & Minimaliste */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard label="Totale Lead" value={contacts?.length || 0} />
-          <StatCard label="Contatti Hot" value={contacts?.filter(c => c.lead_category === 'hot').length || 0} colorClass="text-red-500" />
-          <StatCard label="Da Sincronizzare" value={contacts?.filter(c => !c.hubspot_id).length || 0} colorClass="text-amber-500" />
-          <StatCard label="Acquisiti Oggi" value={contacts?.filter(c => new Date(c.created_at).toDateString() === new Date().toDateString()).length || 0} />
-        </div>
 
         {/* Client Component per ricerca, lista e dettagli */}
         <ContactsListClient initialContacts={contacts || []} />
@@ -72,15 +65,6 @@ export default async function HomePage() {
           </button>
         </Link>
       </div>
-    </div>
-  )
-}
-
-function StatCard({ label, value, colorClass = "text-secondary" }: { label: string, value: number | string, colorClass?: string }) {
-  return (
-    <div className="bg-white dark:bg-zinc-900/30 p-4 rounded-2xl border border-zinc-150 dark:border-zinc-900/60 shadow-sm flex flex-col justify-center text-center sm:text-left">
-      <div className={`text-xl md:text-2xl font-extrabold ${colorClass} tracking-tight`}>{value}</div>
-      <div className="text-[9px] uppercase tracking-wider font-semibold text-zinc-400 mt-1">{label}</div>
     </div>
   )
 }

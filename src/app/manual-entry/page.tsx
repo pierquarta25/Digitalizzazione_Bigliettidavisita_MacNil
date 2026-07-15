@@ -27,7 +27,13 @@ function ManualEntryForm() {
     vat_number: '',
     notes: '',
     lead_category: ['Cliente'],
+    business_line: [] as string[],
     interest: '',
+    city: '',
+    province: '',
+    postal_code: '',
+    region: '',
+    country: '',
   })
 
   // Carica l'immagine pre-processata dal sessionStorage all'avvio
@@ -265,6 +271,90 @@ function ManualEntryForm() {
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Città</label>
+                  <input 
+                    name="city"
+                    value={formData.city}
+                    className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Es. Altamura"
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Provincia</label>
+                  <select
+                    name="province"
+                    value={formData.province}
+                    className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    onChange={handleChange}
+                  >
+                    <option value="">Seleziona Provincia</option>
+                    {[
+                      "AG - Agrigento", "AL - Alessandria", "AN - Ancona", "AO - Aosta", "AP - Ascoli-Piceno",
+                      "AQ - L'Aquila", "AR - Arezzo", "AT - Asti", "AV - Avellino", "BA - Bari", "BG - Bergamo",
+                      "BI - Biella", "BL - Belluno", "BN - Benevento", "BO - Bologna", "BR - Brindisi",
+                      "BS - Brescia", "BT - Barletta-Andria-Trani", "BZ - Bolzano", "CA - Cagliari",
+                      "CB - Campobasso", "CE - Caserta", "CH - Chieti", "CI - Carbonia Iglesias",
+                      "CL - Caltanissetta", "CN - Cuneo", "CO - Como", "CR - Cremona", "CS - Cosenza",
+                      "CT - Catania", "CZ - Catanzaro", "EE - Estero", "EN - Enna", "FC - Forli-Cesena",
+                      "FE - Ferrara", "FG - Foggia", "FI - Firenze", "FM - Fermo", "FR - Frosinone",
+                      "GE - Genova", "GO - Gorizia", "GR - Grosseto", "IM - Imperia", "IS - Isernia",
+                      "KR - Crotone", "LC - Lecco", "LE - Lecce", "LI - Livorno", "LO - Lodi",
+                      "LT - Latina", "LU - Lucca", "MB - Monza-Brianza", "MC - Macerata", "ME - Messina",
+                      "MI - Milano", "MN - Mantova", "MO - Modena", "MS - Massa-Carrara", "MT - Matera",
+                      "NA - Napoli", "NO - Novara", "NU - Nuoro", "OG - Ogliastra", "OR - Oristano",
+                      "OT - Olbia Tempio", "PA - Palermo", "PC - Piacenza", "PD - Padova", "PE - Pescara",
+                      "PG - Perugia", "PI - Pisa", "PN - Pordenone", "PO - Prato", "PR - Parma",
+                      "PT - Pistoia", "PU - Pesaro-Urbino", "PV - Pavia", "PZ - Potenza", "RA - Ravenna",
+                      "RC - Reggio-Calabria", "RE - Reggio-Emilia", "RG - Ragusa", "RI - Rieti", "RM - Roma",
+                      "RN - Rimini", "RO - Rovigo", "SA - Salerno", "SI - Siena", "SO - Sondrio",
+                      "SP - La-Spezia", "SR - Siracusa", "SS - Sassari", "SU - Sud Sardegna", "SV - Savona",
+                      "TA - Taranto", "TE - Teramo", "TN - Trento", "TO - Torino", "TP - Trapani",
+                      "TR - Terni", "TS - Trieste", "TV - Treviso", "UD - Udine", "VA - Varese",
+                      "VB - Verbania", "VC - Vercelli", "VE - Venezia", "VI - Vicenza", "VR - Verona",
+                      "VS - Medio Campidano", "VT - Viterbo", "VV - Vibo-Valentia"
+                    ].map(prov => (
+                      <option key={prov} value={prov}>{prov}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Codice Postale</label>
+                  <input 
+                    name="postal_code"
+                    value={formData.postal_code}
+                    className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Es. 70022"
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Regione IT</label>
+                  <input 
+                    name="region"
+                    value={formData.region}
+                    className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Es. Puglia"
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nazione</label>
+                  <input 
+                    name="country"
+                    value={formData.country}
+                    className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Es. Italia"
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-zinc-400" /> Partita Iva
@@ -308,6 +398,40 @@ function ManualEntryForm() {
                         }`}
                       >
                         {cat}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-zinc-400" /> Linea Business
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Fleet", "Automotive"
+                  ].map(line => {
+                    const isSelected = formData.business_line.includes(line);
+                    return (
+                      <button
+                        key={line}
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            business_line: isSelected 
+                              ? prev.business_line.filter(c => c !== line)
+                              : [...prev.business_line, line]
+                          }))
+                        }}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all active:scale-95 ${
+                          isSelected 
+                            ? 'bg-secondary text-white border-secondary shadow-sm' 
+                            : 'bg-zinc-100 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-transparent hover:border-zinc-300 dark:hover:border-zinc-700'
+                        }`}
+                      >
+                        {line}
                       </button>
                     )
                   })}
