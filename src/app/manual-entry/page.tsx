@@ -25,7 +25,7 @@ function ManualEntryForm() {
     website: '',
     address: '',
     notes: '',
-    lead_category: 'Cliente',
+    lead_category: ['Cliente'],
     interest: '',
   })
 
@@ -59,8 +59,18 @@ function ManualEntryForm() {
   }, [searchParams])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    const name = target.name
+    
+    if (target.type === 'select-multiple') {
+      const selectTarget = target as HTMLSelectElement
+      const selectedValues = Array.from(selectTarget.options)
+        .filter(opt => opt.selected)
+        .map(opt => opt.value)
+      setFormData(prev => ({ ...prev, [name]: selectedValues }))
+    } else {
+      setFormData(prev => ({ ...prev, [name]: target.value }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,6 +80,7 @@ function ManualEntryForm() {
     try {
       const result = await createContact({
         ...formData,
+        lead_category: Array.isArray(formData.lead_category) ? formData.lead_category.join(', ') : formData.lead_category,
         cardImage: scannedImage, // Invia l'immagine compressa da salvare su storage
         scan_source: searchParams.toString() ? 'ocr/qr' : 'manual',
       })
@@ -259,15 +270,25 @@ function ManualEntryForm() {
                   </label>
                   <select 
                     name="lead_category"
+                    multiple
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
                     onChange={handleChange}
                     value={formData.lead_category}
                   >
-                    <option value="Cliente">Cliente</option>
                     <option value="Business Partner">Business Partner</option>
-                    <option value="Distributore">Distributore</option>
+                    <option value="Casa Auto">Casa Auto</option>
+                    <option value="Cliente">Cliente</option>
+                    <option value="Dealer">Dealer</option>
+                    <option value="Distributore Estero">Distributore Estero</option>
+                    <option value="Distributore Italia">Distributore Italia</option>
+                    <option value="Fornitore">Fornitore</option>
                     <option value="Installatore">Installatore</option>
+                    <option value="Prospect">Prospect</option>
+                    <option value="Rivenditore">Rivenditore</option>
+                    <option value="Segnalatore">Segnalatore</option>
+                    <option value="Altro">Altro</option>
                   </select>
+                  <p className="text-[10px] text-zinc-500 mt-1">Tieni premuto Ctrl (Windows) o Cmd (Mac) per selezionare più opzioni.</p>
                 </div>
 
                 <div className="space-y-2">
