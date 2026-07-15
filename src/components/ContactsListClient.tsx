@@ -67,6 +67,7 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
         'Telefono': c.phone || '',
         'Sito Web': c.website || '',
         'Indirizzo': c.address || '',
+        'Partita Iva': c.metadata?.vat_number || '',
         'Categoria Lead': c.lead_category || '',
         'Sincronizzato HubSpot': c.hubspot_id ? 'Sì' : 'No',
         'ID HubSpot': c.hubspot_id || '',
@@ -236,6 +237,7 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
                   <DetailRow icon={<Phone className="h-4 w-4" />} label="Telefono" value={selectedContact.phone} isLink href={`tel:${selectedContact.phone}`} />
                   <DetailRow icon={<Globe className="h-4 w-4" />} label="Sito Web" value={selectedContact.website} isLink href={selectedContact.website ? (selectedContact.website.startsWith('http') ? selectedContact.website : `https://${selectedContact.website}`) : ''} />
                   <DetailRow icon={<MapPin className="h-4 w-4" />} label="Indirizzo" value={selectedContact.address} />
+                  <DetailRow icon={<Building2 className="h-4 w-4" />} label="Partita Iva" value={selectedContact.metadata?.vat_number} />
                   <DetailRow icon={<Calendar className="h-4 w-4" />} label="Acquisito il" value={new Date(selectedContact.created_at).toLocaleString('it-IT')} />
                   <DetailRow icon={<Activity className="h-4 w-4" />} label="Stato Contatto" value={
                     selectedContact.status === 'new' ? 'Nuovo' :

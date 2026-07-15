@@ -50,12 +50,17 @@ export async function createContact(formData: any) {
     teamId: profile?.team_id
   })
 
-  // 2. Cifratura (Encryption) dei campi sensibili
+  // 2. Cifratura (Encryption) dei campi sensibili e gestione metadata
+  const { vat_number, metadata, ...restContactData } = contactData as any;
   const encryptedContactData = {
-    ...contactData,
+    ...restContactData,
     email: encrypt(contactData.email as string),
     phone: encrypt(contactData.phone as string),
     notes: encrypt(contactData.notes as string),
+    metadata: {
+      ...(metadata || {}),
+      ...(vat_number ? { vat_number } : {})
+    }
   }
 
   // 3. Salva su Supabase (con dati protetti)

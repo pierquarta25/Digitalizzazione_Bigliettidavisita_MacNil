@@ -24,6 +24,7 @@ function ManualEntryForm() {
     phone: '',
     website: '',
     address: '',
+    vat_number: '',
     notes: '',
     lead_category: ['Cliente'],
     interest: '',
@@ -260,6 +261,19 @@ function ManualEntryForm() {
                   rows={2}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
                   placeholder="Es. Via Bari 12, Altamura (BA)"
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-zinc-400" /> Partita Iva
+                </label>
+                <input 
+                  name="vat_number"
+                  value={formData.vat_number}
+                  className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all uppercase"
+                  placeholder="Es. 01234567890"
                   onChange={handleChange}
                 />
               </div>
