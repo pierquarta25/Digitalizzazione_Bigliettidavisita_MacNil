@@ -52,9 +52,15 @@ export async function processImageWithGemini(base64Image: string) {
           phone: { type: SchemaType.STRING },
           website: { type: SchemaType.STRING },
           address: { type: SchemaType.STRING },
+          city: { type: SchemaType.STRING },
+          province: { type: SchemaType.STRING },
+          postal_code: { type: SchemaType.STRING },
+          region: { type: SchemaType.STRING },
+          country: { type: SchemaType.STRING },
+          vat_number: { type: SchemaType.STRING },
           notes: { type: SchemaType.STRING }
         },
-        required: ['first_name', 'last_name', 'company', 'role', 'email', 'phone', 'website', 'address', 'notes']
+        required: ['first_name', 'last_name', 'company', 'role', 'email', 'phone', 'website', 'address', 'city', 'province', 'postal_code', 'region', 'country', 'vat_number', 'notes']
       }
     }
   })
@@ -92,11 +98,19 @@ export async function processImageWithGemini(base64Image: string) {
     6. SITO WEB (website):
        - Cerca l'indirizzo internet (es. "www.macnil.it").
 
-    7. INDIRIZZO (address):
-       - Cerca l'indirizzo fisico completo (via, cap, città, provincia) e uniscilo in una stringa ordinata.
+    7. INDIRIZZO E LUOGHI (address, city, province, postal_code, region, country):
+       - 'address': Inserisci SOLO la via (e numero civico), senza CAP o città.
+       - 'city': Inserisci SOLO la città.
+       - 'province': Se la individui, scrivi la sigla e il nome nel formato esatto "SIGLA - Nome" (es. "BA - Bari"). Altrimenti stringa vuota.
+       - 'postal_code': Inserisci il codice postale/CAP.
+       - 'region': Inserisci la regione.
+       - 'country': Inserisci la nazione.
 
-    8. NOTE (notes):
-       - Inserisci SOLO informazioni utili aggiuntive presenti sul biglietto che non rientrano nei campi precedenti (es. Partita IVA, profili social come LinkedIn, orari, servizi offerti, slogan).
+    8. PARTITA IVA E CODICE FISCALE (vat_number):
+       - Estrai la Partita IVA (PIVA) o il Codice Fiscale dell'azienda, se presenti.
+
+    9. NOTE (notes):
+       - Inserisci SOLO informazioni utili aggiuntive presenti sul biglietto che non rientrano nei campi precedenti (es. profili social come LinkedIn, orari, servizi offerti, slogan).
        - NON duplicare informazioni già estratte in altri campi.
 
     LINEE GUIDA GENERALI PER L'ACCURATEZZA:
@@ -156,9 +170,15 @@ export async function processTextWithGemini(rawText: string) {
           phone: { type: SchemaType.STRING },
           website: { type: SchemaType.STRING },
           address: { type: SchemaType.STRING },
+          city: { type: SchemaType.STRING },
+          province: { type: SchemaType.STRING },
+          postal_code: { type: SchemaType.STRING },
+          region: { type: SchemaType.STRING },
+          country: { type: SchemaType.STRING },
+          vat_number: { type: SchemaType.STRING },
           notes: { type: SchemaType.STRING }
         },
-        required: ['first_name', 'last_name', 'company', 'role', 'email', 'phone', 'website', 'address', 'notes']
+        required: ['first_name', 'last_name', 'company', 'role', 'email', 'phone', 'website', 'address', 'city', 'province', 'postal_code', 'region', 'country', 'vat_number', 'notes']
       }
     }
   })
@@ -170,9 +190,11 @@ export async function processTextWithGemini(rawText: string) {
 
     REGOLE CRITICHE:
     1. Dividi accuratamente Nome (first_name) e Cognome (last_name).
-    2. Identifica l'Azienda (company), il Ruolo (role), l'Email (email), il Telefono (phone), il Sito Web (website) e l'Indirizzo (address).
-    3. Inserisci in 'notes' solo dati secondari utili (Partita IVA, LinkedIn, slogan) senza duplicare i campi precedenti.
-    4. Se un campo non è presente o non è identificabile nel testo, restituisci una stringa vuota (""). Non allucinare dati.
+    2. Identifica l'Azienda (company), il Ruolo (role), l'Email (email), il Telefono (phone) e il Sito Web (website).
+    3. Per i dati geografici dividi in: 'address' (via), 'city', 'province' (formato esatto "SIGLA - Nome", es. "BA - Bari"), 'postal_code', 'region', 'country'.
+    4. Identifica la Partita IVA in 'vat_number'.
+    5. Inserisci in 'notes' solo dati secondari utili (LinkedIn, slogan) senza duplicare i campi precedenti.
+    6. Se un campo non è presente o non è identificabile nel testo, restituisci una stringa vuota (""). Non allucinare dati.
   `
 
   try {
