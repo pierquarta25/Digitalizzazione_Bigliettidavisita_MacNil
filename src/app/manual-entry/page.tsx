@@ -173,6 +173,7 @@ function ManualEntryForm() {
                     required
                     value={formData.first_name}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Nome"
                     onChange={handleChange}
                   />
                 </div>
@@ -183,6 +184,7 @@ function ManualEntryForm() {
                     required
                     value={formData.last_name}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Cognome"
                     onChange={handleChange}
                   />
                 </div>
@@ -197,6 +199,7 @@ function ManualEntryForm() {
                     name="company"
                     value={formData.company}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Azienda"
                     onChange={handleChange}
                   />
                 </div>
@@ -206,6 +209,7 @@ function ManualEntryForm() {
                     name="role"
                     value={formData.role}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Ruolo"
                     onChange={handleChange}
                   />
                 </div>
@@ -221,6 +225,7 @@ function ManualEntryForm() {
                     type="email"
                     value={formData.email}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Email"
                     onChange={handleChange}
                   />
                 </div>
@@ -233,6 +238,7 @@ function ManualEntryForm() {
                     name="phone"
                     value={formData.phone}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Telefono"
                     onChange={handleChange}
                   />
                 </div>
@@ -246,6 +252,7 @@ function ManualEntryForm() {
                   name="website"
                   value={formData.website}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                  placeholder="Sito Web"
                   onChange={handleChange}
                 />
               </div>
@@ -259,6 +266,7 @@ function ManualEntryForm() {
                   value={formData.address}
                   rows={2}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                  placeholder="Indirizzo"
                   onChange={handleChange}
                 />
               </div>
@@ -270,6 +278,7 @@ function ManualEntryForm() {
                     name="city"
                     value={formData.city}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Città"
                     onChange={handleChange}
                   />
                 </div>
@@ -321,6 +330,7 @@ function ManualEntryForm() {
                     name="postal_code"
                     value={formData.postal_code}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="CAP"
                     onChange={handleChange}
                   />
                 </div>
@@ -330,6 +340,7 @@ function ManualEntryForm() {
                     name="region"
                     value={formData.region}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Regione"
                     onChange={handleChange}
                   />
                 </div>
@@ -339,6 +350,7 @@ function ManualEntryForm() {
                     name="country"
                     value={formData.country}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Nazione"
                     onChange={handleChange}
                   />
                 </div>
@@ -352,6 +364,7 @@ function ManualEntryForm() {
                   name="vat_number"
                   value={formData.vat_number}
                   className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all uppercase"
+                  placeholder="Partita IVA"
                   onChange={handleChange}
                 />
               </div>
@@ -435,6 +448,7 @@ function ManualEntryForm() {
                     value={formData.notes}
                     rows={3}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
+                    placeholder="Note"
                     onChange={handleChange}
                   />
                 </div>
