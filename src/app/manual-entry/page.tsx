@@ -201,7 +201,7 @@ function ManualEntryForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-zinc-400">Ruolo</label>
+                  <label className="text-sm font-medium">Ruolo</label>
                   <input 
                     name="role"
                     value={formData.role}
@@ -274,8 +274,9 @@ function ManualEntryForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Provincia</label>
+                  <label htmlFor="province-select" className="text-sm font-medium">Provincia</label>
                   <select
+                    id="province-select"
                     name="province"
                     value={formData.province}
                     className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
