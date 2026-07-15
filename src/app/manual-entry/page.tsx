@@ -264,32 +264,41 @@ function ManualEntryForm() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Tag className="h-4 w-4 text-zinc-400" /> Categoria Lead
-                  </label>
-                  <select 
-                    name="lead_category"
-                    multiple
-                    className="w-full p-2 border rounded-md bg-transparent focus:ring-2 focus:ring-secondary outline-none transition-all"
-                    onChange={handleChange}
-                    value={formData.lead_category}
-                  >
-                    <option value="Business Partner">Business Partner</option>
-                    <option value="Casa Auto">Casa Auto</option>
-                    <option value="Cliente">Cliente</option>
-                    <option value="Dealer">Dealer</option>
-                    <option value="Distributore Estero">Distributore Estero</option>
-                    <option value="Distributore Italia">Distributore Italia</option>
-                    <option value="Fornitore">Fornitore</option>
-                    <option value="Installatore">Installatore</option>
-                    <option value="Prospect">Prospect</option>
-                    <option value="Rivenditore">Rivenditore</option>
-                    <option value="Segnalatore">Segnalatore</option>
-                    <option value="Altro">Altro</option>
-                  </select>
-                  <p className="text-[10px] text-zinc-500 mt-1">Tieni premuto Ctrl (Windows) o Cmd (Mac) per selezionare più opzioni.</p>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Business Partner", "Casa Auto", "Cliente", "Dealer", 
+                    "Distributore Estero", "Distributore Italia", "Fornitore", 
+                    "Installatore", "Prospect", "Rivenditore", "Segnalatore", "Altro"
+                  ].map(cat => {
+                    const isSelected = formData.lead_category.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            lead_category: isSelected 
+                              ? prev.lead_category.filter(c => c !== cat)
+                              : [...prev.lead_category, cat]
+                          }))
+                        }}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all active:scale-95 ${
+                          isSelected 
+                            ? 'bg-secondary text-white border-secondary shadow-sm' 
+                            : 'bg-zinc-100 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-transparent hover:border-zinc-300 dark:hover:border-zinc-700'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    )
+                  })}
                 </div>
+              </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
