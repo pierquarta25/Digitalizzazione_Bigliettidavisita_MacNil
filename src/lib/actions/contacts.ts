@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { syncContactToHubSpot } from '@/lib/hubspot'
+import { syncContactToHubSpot, updateContactInHubSpot } from '@/lib/hubspot'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { encrypt, decrypt } from '@/utils/crypto'
@@ -194,4 +194,87 @@ export async function syncContact(contactId: string) {
   } else {
     throw new Error('Sincronizzazione con HubSpot fallita. Controlla la chiave API.')
   }
+}
+
+export async function updateContact(contactId: string, formData: any) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Devi essere autenticato per aggiornare un contatto.')
+  }
+
+  // Verifica che il contatto appartenga all'utente/team (RLS dovrebbe gestirlo, ma facciamo check extra se serve)
+  const { data: existingContact, error: fetchError } = await supabase
+    .from('contacts')
+    .select('*')
+    .eq('id', contactId)
+    .single()
+
+  if (fetchError || !existingContact) {
+    throw new Error('Contatto non trovato o non accessibile.')
+  }
+
+  // Escludiamo campi che non devono essere modificati e campi di sistema
+  const { id, user_id, team_id, created_at, scan_source, hubspot_id, attachments, ...rawContactData } = formData
+
+  // Validazione Zod
+  const validationResult = contactSchema.safeParse(rawContactData)
+  if (!validationResult.success) {
+    throw new Error('Dati non validi: ' + validationResult.error.message)
+  }
+  const contactData = validationResult.data
+
+  // Cifratura e metadata
+  const { vat_number, metadata, city, province, postal_code, region, country, business_line, ...restContactData } = contactData as any;
+  const encryptedContactData = {
+    ...restContactData,
+    email: encrypt(contactData.email as string),
+    phone: encrypt(contactData.phone as string),
+    notes: encrypt(contactData.notes as string),
+    metadata: {
+      ...(existingContact.metadata || {}), // Mantiene metadata esistenti
+      ...(metadata || {}),
+      ...(vat_number !== undefined ? { vat_number } : {}),
+      ...(city !== undefined ? { city } : {}),
+      ...(province !== undefined ? { province } : {}),
+      ...(postal_code !== undefined ? { postal_code } : {}),
+      ...(region !== undefined ? { region } : {}),
+      ...(country !== undefined ? { country } : {}),
+      ...(business_line !== undefined ? { business_line } : {})
+    }
+  }
+
+  // Aggiorna su Supabase
+  const { data: updatedContact, error: updateError } = await supabase
+    .from('contacts')
+    .update(encryptedContactData)
+    .eq('id', contactId)
+    .select()
+    .single()
+
+  if (updateError) {
+    throw new Error('Errore durante l\'aggiornamento su Supabase: ' + updateError.message)
+  }
+
+  // Decifra per ritorno
+  const decryptedContact = {
+    ...updatedContact,
+    email: decrypt(updatedContact.email),
+    phone: decrypt(updatedContact.phone),
+    notes: decrypt(updatedContact.notes)
+  }
+
+  // Sincronizza l'aggiornamento su HubSpot se è già sincronizzato
+  if (existingContact.hubspot_id) {
+    try {
+      await updateContactInHubSpot(existingContact.hubspot_id, decryptedContact)
+    } catch (err) {
+      console.error('Aggiornamento HubSpot fallito:', err)
+    }
+  }
+
+  revalidatePath('/')
+  return { success: true, contact: decryptedContact }
 }

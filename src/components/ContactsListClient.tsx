@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Search, Building2, Mail, Phone, ExternalLink, X, Globe, MapPin, Calendar, CheckCircle, AlertCircle, MessageSquare, Camera, Activity, Sparkles, Tag, ChevronRight, FileSpreadsheet } from 'lucide-react'
-import { syncContact } from '@/lib/actions/contacts'
+import { Search, Building2, Mail, Phone, ExternalLink, X, Globe, MapPin, Calendar, CheckCircle, AlertCircle, MessageSquare, Camera, Activity, Sparkles, Tag, ChevronRight, FileSpreadsheet, Pencil, Save } from 'lucide-react'
+import { syncContact, updateContact } from '@/lib/actions/contacts'
 import * as XLSX from 'xlsx'
 
 interface ContactsListClientProps {
@@ -15,11 +15,33 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
   const [selectedContact, setSelectedContact] = useState<any | null>(null)
   const [modalImageError, setModalImageError] = useState(false)
   const [syncingId, setSyncingId] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editData, setEditData] = useState<any>({})
 
   // Reset modal image error state when selected contact changes
   useEffect(() => {
     setModalImageError(false)
+    setIsEditing(false)
   }, [selectedContact])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const res = await updateContact(selectedContact.id, {
+        ...selectedContact,
+        ...editData
+      })
+      if (res.success) {
+        alert('Contatto aggiornato con successo!')
+        window.location.reload()
+      }
+    } catch (err: any) {
+      alert(err.message || 'Errore durante il salvataggio.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const handleSync = async (id: string) => {
     setSyncingId(id)
@@ -221,97 +243,200 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
             {/* Header */}
             <div className="flex justify-between items-start pb-4 border-b border-zinc-100 dark:border-zinc-900 mb-5">
               <div>
-                <h2 className="text-xl md:text-2xl font-bold tracking-tight">{selectedContact.first_name} {selectedContact.last_name}</h2>
-                <p className="text-xs md:text-sm text-zinc-500 font-medium flex items-center gap-1.5 mt-1">
-                  <Building2 className="h-3.5 w-3.5" /> {selectedContact.role ? `${selectedContact.role} @ ` : ''}{selectedContact.company || 'Nessuna Azienda'}
-                </p>
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight">
+                  {isEditing ? 'Modifica Contatto' : `${selectedContact.first_name} ${selectedContact.last_name}`}
+                </h2>
+                {!isEditing && (
+                  <p className="text-xs md:text-sm text-zinc-500 font-medium flex items-center gap-1.5 mt-1">
+                    <Building2 className="h-3.5 w-3.5" /> {selectedContact.role ? `${selectedContact.role} @ ` : ''}{selectedContact.company || 'Nessuna Azienda'}
+                  </p>
+                )}
               </div>
-              <button 
-                onClick={() => setSelectedContact(null)}
-                className="text-zinc-400 hover:text-zinc-650 dark:hover:text-zinc-250 transition-colors p-1.5 rounded-xl hover:bg-zinc-55 dark:hover:bg-zinc-900"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex gap-2">
+                {!isEditing && (
+                  <button 
+                    onClick={() => {
+                      setEditData({
+                        first_name: selectedContact.first_name || '',
+                        last_name: selectedContact.last_name || '',
+                        email: selectedContact.email || '',
+                        phone: selectedContact.phone || '',
+                        website: selectedContact.website || '',
+                        address: selectedContact.address || '',
+                        company: selectedContact.company || '',
+                        role: selectedContact.role || '',
+                        notes: selectedContact.notes || '',
+                        lead_category: selectedContact.lead_category || 'Cliente',
+                      })
+                      setIsEditing(true)
+                    }}
+                    className="text-zinc-400 hover:text-secondary transition-colors p-1.5 rounded-xl hover:bg-zinc-55 dark:hover:bg-zinc-900"
+                    title="Modifica"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
+                <button 
+                  onClick={() => { setSelectedContact(null); setIsEditing(false); }}
+                  className="text-zinc-400 hover:text-zinc-650 dark:hover:text-zinc-250 transition-colors p-1.5 rounded-xl hover:bg-zinc-55 dark:hover:bg-zinc-900"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* Content Grid */}
             <div className="flex-1 overflow-y-auto space-y-6 pr-1">
-              {/* Fields */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <DetailRow icon={<Mail className="h-4 w-4" />} label="Email" value={selectedContact.email} isLink href={`mailto:${selectedContact.email}`} />
-                  <DetailRow icon={<Phone className="h-4 w-4" />} label="Telefono" value={selectedContact.phone} isLink href={`tel:${selectedContact.phone}`} />
-                  <DetailRow icon={<Globe className="h-4 w-4" />} label="Sito Web" value={selectedContact.website} isLink href={selectedContact.website ? (selectedContact.website.startsWith('http') ? selectedContact.website : `https://${selectedContact.website}`) : ''} />
-                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Indirizzo" value={selectedContact.address} />
-                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Città" value={selectedContact.metadata?.city} />
-                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Provincia" value={selectedContact.metadata?.province} />
-                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="CAP" value={selectedContact.metadata?.postal_code} />
-                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Regione" value={selectedContact.metadata?.region} />
-                  <DetailRow icon={<MapPin className="h-4 w-4" />} label="Nazione" value={selectedContact.metadata?.country} />
-                  <DetailRow icon={<Building2 className="h-4 w-4" />} label="Partita Iva" value={selectedContact.metadata?.vat_number} />
-                  <DetailRow icon={<Calendar className="h-4 w-4" />} label="Acquisito il" value={new Date(selectedContact.created_at).toLocaleString('it-IT')} />
-                  <DetailRow icon={<Activity className="h-4 w-4" />} label="Stato Contatto" value={
-                    selectedContact.status === 'new' ? 'Nuovo' :
-                    selectedContact.status === 'contacted' ? 'Contattato' :
-                    selectedContact.status === 'follow-up' ? 'Follow-up' :
-                    selectedContact.status === 'client' ? 'Cliente' : selectedContact.status || 'Nuovo'
-                  } />
-                  <DetailRow icon={<Sparkles className="h-4 w-4" />} label="Fonte" value={
-                    selectedContact.scan_source === 'ocr' ? 'Scansione Ottica (OCR)' :
-                    selectedContact.scan_source === 'qr' ? 'Codice QR' :
-                    selectedContact.scan_source === 'ocr/qr' ? 'Scansione Biglietto / QR' :
-                    selectedContact.scan_source === 'manual' ? 'Inserimento Manuale' : selectedContact.scan_source || 'Inserimento Manuale'
-                  } />
-                  {selectedContact.interest && (
-                    <DetailRow icon={<Tag className="h-4 w-4" />} label="Interesse" value={selectedContact.interest} />
-                  )}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-900">
-                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
-                    <span>Categoria:</span>
-                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
-                      {selectedContact.lead_category}
-                    </span>
+              {isEditing ? (
+                <div className="space-y-4 pb-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Nome</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.first_name} onChange={(e) => setEditData({...editData, first_name: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Cognome</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.last_name} onChange={(e) => setEditData({...editData, last_name: e.target.value})} />
+                    </div>
                   </div>
-                  {selectedContact.metadata?.business_line && selectedContact.metadata.business_line.length > 0 && (
-                    <>
-                      <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-800" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Azienda</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.company} onChange={(e) => setEditData({...editData, company: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Ruolo</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.role} onChange={(e) => setEditData({...editData, role: e.target.value})} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Email</label>
+                      <input type="email" className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.email} onChange={(e) => setEditData({...editData, email: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Telefono</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.phone} onChange={(e) => setEditData({...editData, phone: e.target.value})} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Sito Web</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.website} onChange={(e) => setEditData({...editData, website: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-zinc-400 mb-1 block">Indirizzo</label>
+                      <input className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.address} onChange={(e) => setEditData({...editData, address: e.target.value})} />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 mb-2 block">Categoria Lead</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Business Partner", "Casa Auto", "Cliente", "Dealer", 
+                        "Distributore Estero", "Distributore Italia", "Fornitore", 
+                        "Installatore", "Prospect", "Rivenditore", "Segnalatore", "Altro"
+                      ].map(cat => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setEditData({...editData, lead_category: cat})}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all active:scale-95 ${
+                            editData.lead_category === cat
+                              ? 'bg-secondary text-white border-secondary shadow-sm' 
+                              : 'bg-zinc-100 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-transparent hover:border-zinc-300 dark:hover:border-zinc-700'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-400 mb-1 block">Note</label>
+                    <textarea rows={3} className="w-full p-2 border rounded-md text-sm bg-transparent border-zinc-200 dark:border-zinc-800 focus:ring-1 focus:ring-secondary outline-none" value={editData.notes} onChange={(e) => setEditData({...editData, notes: e.target.value})} />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Fields */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <DetailRow icon={<Mail className="h-4 w-4" />} label="Email" value={selectedContact.email} isLink href={`mailto:${selectedContact.email}`} />
+                      <DetailRow icon={<Phone className="h-4 w-4" />} label="Telefono" value={selectedContact.phone} isLink href={`tel:${selectedContact.phone}`} />
+                      <DetailRow icon={<Globe className="h-4 w-4" />} label="Sito Web" value={selectedContact.website} isLink href={selectedContact.website ? (selectedContact.website.startsWith('http') ? selectedContact.website : `https://${selectedContact.website}`) : ''} />
+                      <DetailRow icon={<MapPin className="h-4 w-4" />} label="Indirizzo" value={selectedContact.address} />
+                      <DetailRow icon={<MapPin className="h-4 w-4" />} label="Città" value={selectedContact.metadata?.city} />
+                      <DetailRow icon={<MapPin className="h-4 w-4" />} label="Provincia" value={selectedContact.metadata?.province} />
+                      <DetailRow icon={<MapPin className="h-4 w-4" />} label="CAP" value={selectedContact.metadata?.postal_code} />
+                      <DetailRow icon={<MapPin className="h-4 w-4" />} label="Regione" value={selectedContact.metadata?.region} />
+                      <DetailRow icon={<MapPin className="h-4 w-4" />} label="Nazione" value={selectedContact.metadata?.country} />
+                      <DetailRow icon={<Building2 className="h-4 w-4" />} label="Partita Iva" value={selectedContact.metadata?.vat_number} />
+                      <DetailRow icon={<Calendar className="h-4 w-4" />} label="Acquisito il" value={new Date(selectedContact.created_at).toLocaleString('it-IT')} />
+                      <DetailRow icon={<Activity className="h-4 w-4" />} label="Stato Contatto" value={
+                        selectedContact.status === 'new' ? 'Nuovo' :
+                        selectedContact.status === 'contacted' ? 'Contattato' :
+                        selectedContact.status === 'follow-up' ? 'Follow-up' :
+                        selectedContact.status === 'client' ? 'Cliente' : selectedContact.status || 'Nuovo'
+                      } />
+                      <DetailRow icon={<Sparkles className="h-4 w-4" />} label="Fonte" value={
+                        selectedContact.scan_source === 'ocr' ? 'Scansione Ottica (OCR)' :
+                        selectedContact.scan_source === 'qr' ? 'Codice QR' :
+                        selectedContact.scan_source === 'ocr/qr' ? 'Scansione Biglietto / QR' :
+                        selectedContact.scan_source === 'manual' ? 'Inserimento Manuale' : selectedContact.scan_source || 'Inserimento Manuale'
+                      } />
+                      {selectedContact.interest && (
+                        <DetailRow icon={<Tag className="h-4 w-4" />} label="Interesse" value={selectedContact.interest} />
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-900">
                       <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
-                        <span>Linea:</span>
-                        {selectedContact.metadata.business_line.map((line: string) => (
-                          <span key={line} className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
-                            {line}
-                          </span>
-                        ))}
+                        <span>Categoria:</span>
+                        <span className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
+                          {selectedContact.lead_category}
+                        </span>
                       </div>
-                    </>
-                  )}
-                  <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-800" />
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                    <span>HubSpot:</span>
-                    {selectedContact.hubspot_id ? (
-                      <span className="flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
-                        <CheckCircle className="h-3.5 w-3.5" /> Sincronizzato
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
-                        <AlertCircle className="h-3.5 w-3.5" /> Non Sincronizzato
-                      </span>
-                    )}
+                      {selectedContact.metadata?.business_line && selectedContact.metadata.business_line.length > 0 && (
+                        <>
+                          <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-800" />
+                          <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-500">
+                            <span>Linea:</span>
+                            {selectedContact.metadata.business_line.map((line: string) => (
+                              <span key={line} className={`px-2 py-0.5 rounded-full font-bold uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400`}>
+                                {line}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      <div className="h-3 w-px bg-zinc-200 dark:bg-zinc-800" />
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                        <span>HubSpot:</span>
+                        {selectedContact.hubspot_id ? (
+                          <span className="flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-3.5 w-3.5" /> Sincronizzato
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
+                            <AlertCircle className="h-3.5 w-3.5" /> Non Sincronizzato
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Note e Interessi */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                  <MessageSquare className="h-3.5 w-3.5" /> Note / Interessi
-                </h4>
-                <div className="text-sm bg-zinc-55 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-900 rounded-2xl p-4 italic text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
-                  {selectedContact.notes || 'Nessuna nota aggiuntiva.'}
-                </div>
-              </div>
+                  {/* Note e Interessi */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+                      <MessageSquare className="h-3.5 w-3.5" /> Note / Interessi
+                    </h4>
+                    <div className="text-sm bg-zinc-55 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-900 rounded-2xl p-4 italic text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+                      {selectedContact.notes || 'Nessuna nota aggiuntiva.'}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Business Card Image */}
               <div className="space-y-2">
@@ -356,22 +481,50 @@ export default function ContactsListClient({ initialContacts }: ContactsListClie
 
             {/* Footer */}
             <div className="flex justify-end gap-3 border-t border-zinc-100 dark:border-zinc-900 pt-4 mt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setSelectedContact(null)}
-                className="rounded-xl font-semibold text-xs"
-              >
-                Chiudi
-              </Button>
-              {!selectedContact.hubspot_id && (
-                <Button 
-                  variant="secondary"
-                  className="font-bold rounded-xl text-xs bg-secondary hover:bg-secondary/90 text-white"
-                  onClick={() => handleSync(selectedContact.id)}
-                  disabled={syncingId !== null}
-                >
-                  {syncingId === selectedContact.id ? 'Sincronizzazione...' : 'Sincronizza HubSpot'}
-                </Button>
+              {isEditing ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsEditing(false)}
+                    className="rounded-xl font-semibold text-xs"
+                    disabled={saving}
+                  >
+                    Annulla
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    className="font-bold rounded-xl text-xs bg-primary hover:bg-primary/90 text-white flex items-center gap-1.5"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <span className="h-3 w-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    ) : (
+                      <Save className="h-3.5 w-3.5" />
+                    )}
+                    Salva
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setSelectedContact(null)}
+                    className="rounded-xl font-semibold text-xs"
+                  >
+                    Chiudi
+                  </Button>
+                  {!selectedContact.hubspot_id && (
+                    <Button 
+                      variant="secondary"
+                      className="font-bold rounded-xl text-xs bg-secondary hover:bg-secondary/90 text-white"
+                      onClick={() => handleSync(selectedContact.id)}
+                      disabled={syncingId !== null}
+                    >
+                      {syncingId === selectedContact.id ? 'Sincronizzazione...' : 'Sincronizza HubSpot'}
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>
